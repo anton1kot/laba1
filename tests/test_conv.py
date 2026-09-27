@@ -10,26 +10,26 @@ def test_temp():
 import sys
 import pytest
 
-def test_err_incor_un():
+def test_err_incor_un(capsys):
     with pytest.raises(SystemExit) as e:
         convert.conv("2 --from mm --to sm")
-    assert e.type == SystemExit
-    assert e.value.code == 'incorrect unit'
+    cap=capsys.readouterr()
+    assert cap.err == 'incorrect unit'
 
-def test_err_dif():
+def test_err_dif(capsys):
     with pytest.raises(SystemExit) as e:
         convert.conv("3 --from kg --to mm ")
-    assert e.type == SystemExit
-    assert e.value.code == 'different units'
+    cap=capsys.readouterr()
+    assert cap.err == 'different units'
 
-def test_err_inp():
+def test_err_inp(capsys):
     with pytest.raises(SystemExit) as e:
         convert.conv("2 from c to f")
-    assert e.type == SystemExit
-    assert e.value.code == 'incorrect input'
+    cap=capsys.readouterr()
+    assert cap.err == 'incorrect input'
 
-def test_err_zero():
+def test_err_zero(capsys):
     with pytest.raises(SystemExit) as e:
         convert.conv("-500 --from f --to c")
-    assert e.type == SystemExit
-    assert e.value.code == 'lower abs zero'
+    cap=capsys.readouterr()
+    assert cap.err == 'lower abs zero'

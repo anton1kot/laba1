@@ -14,26 +14,26 @@ def test_space_and_float():
 import sys
 import pytest
 
-def test_err_incor():
+def test_err_incor(capsys):
     with pytest.raises(SystemExit) as e:
         calc.calc("!2+1")
-    assert e.type == SystemExit
-    assert e.value.code == 'invalid syntaxis'
+    cap = capsys.readouterr()
+    assert cap.err == 'invalid syntaxis'
 
-def test_err_emp():
+def test_err_emp(capsys):
     with pytest.raises(SystemExit) as e:
         calc.calc("")
-    assert e.type == SystemExit
-    assert e.value.code == 'empty string'
+    cap = capsys.readouterr()
+    assert cap.err == 'empty string'
 
-def test_err_skip():
+def test_err_skip(capsys):
     with pytest.raises(SystemExit) as e:
         calc.calc("2+1 2")
-    assert e.type == SystemExit
-    assert e.value.code == 'skipped operand'
+    cap = capsys.readouterr()
+    assert cap.err == 'skipped operand'
 
-def test_err_zero():
+def test_err_zero(capsys):
     with pytest.raises(SystemExit) as e:
         calc.calc("-2/8/0")
-    assert e.type == SystemExit
-    assert e.value.code == 'zero division error'
+    cap = capsys.readouterr()
+    assert cap.err == 'zero division error'

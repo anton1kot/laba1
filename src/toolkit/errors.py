@@ -29,13 +29,16 @@ def errRes(res):
             erExp()
             return True
 def erExp(n=None):
-    if n==None:sys.exit( 'invalid syntaxis')
-    if n==1:sys.exit( 'empty string')
-    if n==2:sys.exit( 'skipped operand')
-    if n==0:sys.exit( 'zero division error')
+    if n==None:sys.stderr.write( 'invalid syntaxis')
+    if n==1:sys.stderr.write( 'empty string')
+    if n==2:sys.stderr.write( 'skipped operand')
+    if n==0:sys.stderr.write( 'zero division error')
+    sys.exit(2)
+    
 def er(n):
-    if n==0:sys.exit('incorrect unit')
-    if n==1:sys.exit('different units')
-    if n==2:sys.exit('lower abs zero')
-    if n==3:sys.exit('incorrect input')
+    if n==0:sys.stderr.write('incorrect unit')
+    if n==1:sys.stderr.write('different units')
+    if n==2:sys.stderr.write('lower abs zero')
+    if n==3:sys.stderr.write('incorrect input')
+    sys.exit(2)
 

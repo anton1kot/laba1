@@ -14,3 +14,7 @@ dependencies = [
 [tool.setuptools.packages.find]
 where = ["src"]
 include = ["toolkit*"]
+
+[tool.ruff]
+line-length = 92
+target-version = "py314"

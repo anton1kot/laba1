@@ -1,86 +1,84 @@
 from . import errors
 
-lenUn=['mm','cm','m','km']
-masUn=['g','kg']
-temUn=['c','f','k']
 
-def whUn(un):
-    if un in lenUn:return 1
-    if un in masUn:return 2
-    if un in temUn:return 3
+def what_type_of_units(un):
+    if un in ['mm','cm','m','km']:return 1
+    if un in ['g','kg']:return 2
+    if un in ['c','f','k']:return 3
     #задаем каждой группе код
     return 0
     #неизвестные единицы получат код 0
-def corUn(a,b): #корелляция единиц
-    if whUn(a)*whUn(b)==0:
+def units_correlation(a,b): #корелляция единиц
+    if what_type_of_units(a)*what_type_of_units(b)==0:
         #если хотя бы одна един неизв - ошибка неизв един
-        errors.er(0)
+        errors.convert_errors(0)
         return False
-    if whUn(a)==whUn(b):return True
+    if what_type_of_units(a)==what_type_of_units(b):return True
     #если код групп не совпал - ошибка разн един
-    errors.er(1)
+    errors.convert_errors(1)
     return False
 
-def conv(ex):
-    ex = ex.split()
-    if len(ex)!=5:
-        errors.er(3)
+def convert(expression):
+    expression = expression.split()
+    if len(expression)!=5:
+        errors.convert_errors(3)
         return False
-    if ex[1]!='--from' or ex[3]!='--to':
-        errors.er(3)
+    if expression[1]!= '--from' or expression[3]!= '--to':
+        errors.convert_errors(3)
         return False
     #разделяем аргументы и проверяем на корректность ввода
-    n=ex[0]
-    unA=ex[2].lower()
-    unB=ex[4].lower()
-    if corUn(unA,unB):
-        if unA=='kg':
-            if unB=='g':return float(n)*1000
-            if unB=='kg':return  float(n)
-        if unA=='g':
-            if unB=='g':return float(n)
-            if unB=='kg':return  float(n)/1000
-        if unA=='km':
-            if unB=='mm':return float(n)*1000000
-            if unB=='cm':return  float(n)*100000
-            if unB=='m':return float(n)*1000
-            if unB=='km':return  float(n)
-        if unA == 'm':
-            if unB == 'km': return float(n) / 1000
-            if unB == 'mm': return float(n) * 1000
-            if unB == 'cm': return float(n) * 100
-            if unB == 'm': return float(n)
-        if unA == 'cm':
-            if unB == 'km': return float(n) / 100000
-            if unB == 'm': return float(n) / 1000
-            if unB == 'mm': return float(n) * 10
-            if unB == 'cm': return float(n)
-        if unA == 'mm':
-            if unB == 'km': return float(n) / 1000000
-            if unB == 'm': return float(n) / 1000
-            if unB == 'cm': return float(n) / 10
-            if unB == 'mm': return float(n)
+    num=expression[0]
+    un_a=expression[2].lower()
+    un_b=expression[4].lower()
+    if units_correlation(un_a,un_b):
+        if un_a=='kg':
+            if un_b=='g':return float(num)*1000
+            if un_b=='kg':return  float(num)
+        if un_a=='g':
+            if un_b=='g':return float(num)
+            if un_b=='kg':return  float(num)/1000
+        if un_a=='km':
+            if un_b=='mm':return float(num)*1000000
+            if un_b=='cm':return  float(num)*100000
+            if un_b=='m':return float(num)*1000
+            if un_b=='km':return  float(num)
+        if un_a == 'm':
+            if un_b == 'km': return float(num) / 1000
+            if un_b == 'mm': return float(num) * 1000
+            if un_b == 'cm': return float(num) * 100
+            if un_b == 'm': return float(num)
+        if un_a == 'cm':
+            if un_b == 'km': return float(num) / 100000
+            if un_b == 'm': return float(num) / 1000
+            if un_b == 'mm': return float(num) * 10
+            if un_b == 'cm': return float(num)
+        if un_a == 'mm':
+            if un_b == 'km': return float(num) / 1000000
+            if un_b == 'm': return float(num) / 1000
+            if un_b == 'cm': return float(num) / 10
+            if un_b == 'mm': return float(num)
 
         #перед конвертацией проверим каждое значение относительно абсолютного нуля
-        if unA=='c':
-            if float(n)<-273.15:
-                errors.er(2)
+        if un_a=='c':
+            if float(num)<-273.15:
+                errors.convert_errors(2)
                 return False
-            if unB=='c':return float(n)
-            if unB=='f':return  (float(n)*1.8)+32
-            if unB == 'k': return float(n)+273.15
-        if unA == 'f':
-            if float(n)<-459.67:
-                errors.er(2)
+            if un_b=='c':return float(num)
+            if un_b=='f':return  (float(num)*1.8)+32
+            if un_b == 'k': return float(num)+273.15
+        if un_a == 'f':
+            if float(num)<-459.67:
+                errors.convert_errors(2)
                 return False
-            if unB == 'c': return (float(n)-32)*5/9
-            if unB == 'f': return float(n)
-            if unB == 'k': return (float(n)+459.67)*5/9
-        if unA=='k':
-            if unA[0]=='-':
-                errors.er(2)
+            if un_b == 'c': return (float(num)-32)*5/9
+            if un_b == 'f': return float(num)
+            if un_b == 'k': return (float(num)+459.67)*5/9
+        if un_a=='k':
+            if un_a[0]=='-':
+                errors.convert_errors(2)
                 return False
-            if unB=='c':return float(n)-273.15
-            if unB=='f':return  32+(float(n)-273.15)*1.8
-            if unB == 'k': return float(n)
+            if un_b=='c':return float(num)-273.15
+            if un_b=='f':return  32+(float(num)-273.15)*1.8
+            if un_b == 'k': return float(num)
 
+    return None

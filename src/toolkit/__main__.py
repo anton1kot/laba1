@@ -36,7 +36,7 @@ Usage:
     if comm=='calc':
         sys.stdout.write(str(calc.calc(argu)))
     if comm=='convert':
-        sys.stdout.write(str(convert.conv(argu)))
+        sys.stdout.write(str(convert.convert(argu)))
     #выводим результат
 
 if __name__=="__main__":

@@ -3,101 +3,101 @@ import re
 from . import errors
 
 
-def isZ(n):
+def is_integer(num):
     #проверка на положительные и отрицательные целые числа в str
-    if n[0]=='-':
-        return n[1:].isdigit()
-    else:return n.isdigit()
-def isR(n):
+    if num[0]=='-':
+        return num[1:].isdigit()
+    else:return num.isdigit()
+def is_real(num):
     #проверка на вещественные числа
-    if '.' in n:
-        n=n.split('.')
-        return isZ(n[0])and n[1].isdigit
+    if '.' in num:
+        num=num.split('.')
+        return is_integer(num[0])and num[1].isdigit
         #часть до точки может иметь минус, часть после нет
-    return isZ(n)
+    return is_integer(num)
 
-def isOp(x):
-    return x in['+','-','/','*']
+def is_operator(char):
+    return char in['+','-','/','*']
     #проверка на операторы
 
-def arif(a,b,c):
-    if c=='+':
+def bin_operation(a,b,operator):
+    if operator=='+':
         return float(a)+float(b)
-    if c=='-':
+    if operator=='-':
         return float(a)-float(b)
-    if c=='*':
+    if operator=='*':
         return float(a)*float(b)
-    if c=='/':
+    if operator=='/':
         if float(b)==float(0):
             #ловим ошибку деления на ноль
-            errors.erExp(0)
+            errors.expression_error(0)
             return False
         return float(a)/float(b)
-def tokStr(st):
-    if errors.errSt(st): return '--'
+def string_token(string):
+    if errors.string_error(string): return '--'
     #ловим потенциальные ошибки, способные сломать дальнейшие преобразования
-    st=st.replace(' ','')
+    string=string.replace(' ','')
     #игнорируем пробелы
-    res=re.split(r'(\D)',st)
+    result=re.split(r'(\D)',string)
     #делим на числа и знаки
-    while '' in res:
-        res.remove('')
+    while '' in result:
+        result.remove('')
         #удаляем образовавшиеся пустые строки
-    if errors.errRes(res):return'--'
+    if errors.result_error(result):return'--'
     #ловим потенциальные ошибки
-    if res[0]=='-' and res[1].isdigit:
-        res=([res[0]+res[1]]+res[2:])
+    if result[0]=='-' and result[1].isdigit:
+        result=([result[0]+result[1]]+result[2:])
     #собираем отрицательное число в начале (если есть)
     
     while True:
         stop=1
-        for i in range(len(res)):
-            if res[i]=='-' and res[i+1].isdigit and not isOp(res[i+1]) and isOp(res[i-1]):
-                res=(res[:i]+[res[i]+res[i+1]]+res[i+2:])
+        for i in range(len(result)):
+            if result[i]=='-' and result[i+1].isdigit and not is_operator(result[i + 1]) and is_operator(result[i - 1]):
+                result=(result[:i]+[result[i]+result[i+1]]+result[i+2:])
                 stop=0
                 break
         if stop==1:break
     #собираем отрицательные числа пока находим тройку оператор-минус-число
-    if res[0]=='+' and res[1].isdigit and not isOp(res[1]) and not isOp(res[1]):
-        res=res[1:]
+    if result[0]=='+' and result[1].isdigit and not is_operator(result[1]) and not is_operator(result[1]):
+        result=result[1:]
     #убираем унарный плюс в начале (если есть)
     while True:
         stop=1
-        for i in range(len(res)):
-            if res[i]=='+' and res[i+1].isdigit and not isOp(res[i+1]) and isOp(res[i-1]):
-                res=(res[:i]+res[i+1:])
+        for i in range(len(result)):
+            if result[i]=='+' and result[i+1].isdigit and not is_operator(result[i + 1]) and is_operator(result[i - 1]):
+                result=(result[:i]+result[i+1:])
                 stop=0
                 break
         if stop==1:break
         #убираем унарные плюсы пока находим тройку оператор-плюс-число
     while True:
         stop=1
-        for i in range(1,len(res)-1):
-            if isZ(res[i-1]) and res[i]=='.' and res[1+i].isdigit():
-                res=(res[:i-1]+[res[i-1]+'.'+res[i+1]]+res[i+2:])
+        for i in range(1,len(result)-1):
+            if is_integer(result[i - 1]) and result[i]== '.' and result[1 + i].isdigit():
+                result=(result[:i-1]+[result[i-1]+'.'+result[i+1]]+result[i+2:])
                 stop=0
                 break
         if stop==1:break
-    return res
+    return result
     #собираем числа с точкой пока находим тройку целое число-точка-,беззнак_число
 def valid(st):
-    #валидация результата tokStr
+    #валидация результата string_token
     if '--' in st or '-+'in st:return False
     #ищет слипшиеся унарные знаки
     for i in st:
-        if not (isR(i) or isOp(i)):
+        if not (is_real(i) or is_operator(i)):
             return False
         #проверяет на соответствие числу или оператору
     for i in range(1,len(st),2):
         if i==len(st)-1:return False
-        if not isOp(st[i]) or isOp(st[1+i]) or isOp(st[i-1]):
+        if not is_operator(st[i]) or is_operator(st[1 + i]) or is_operator(st[i - 1]):
             return False
         #идет по ячейкам, которые должны указывать на операцию и находится между числами
     return True
 
-def rpn(exp):
+def reverse_polish_notation(exp):
     #revers_polish_notation - обратная польская запись
-    st=[]
+    rpn_list=[]
     box=[] #доп стек для хранения неприоритетного оператора
     skip=0
     for i in range(len(exp)):
@@ -107,50 +107,51 @@ def rpn(exp):
             continue
         #если предыдущая итерация приняла оператор => этот операнд уже добавлен
 
-        if not isOp(exp[i]):st.append(exp[i])
+        if not is_operator(exp[i]):rpn_list.append(exp[i])
         else:
-            st.append(exp[i+1])
+            rpn_list.append(exp[i+1])
             #вытаскиваем второй операнд к первому (1+2*3=>1 2 ...=>1 2 3 * +)
             if exp[i] in ['*','/']:
-                st.append(exp[i])
+                rpn_list.append(exp[i])
                 #приоритетный оператор можно добавить сразу
                 if box:
                     #если box содержит непри-й оператор смотрим, можно ли его добавить
-                    if i==len(exp)-2:st.append(box.pop())
+                    if i==len(exp)-2:rpn_list.append(box.pop())
                     #если ячейка последнего опертора, дальше точно нет оперторов
                     else:
-                        if exp[i+2] not in ['*','/']:st.append(box.pop())
+                        if exp[i+2] not in ['*','/']:rpn_list.append(box.pop())
                         #проверяем ячейку следущего оператора,
                         #если он неприор-й вытаскиваем из box непр-й оператор
             if exp[i] in ['+','-']:
-                if i==len(exp)-2:st.append(exp[i])
+                if i==len(exp)-2:rpn_list.append(exp[i])
                 #если мы в ячейке последнего оператора приор-сть уже не важна
                 elif exp[i+2] in ['*','/']:box.append(exp[i])
                 #если след оператор приор-й берем текущ в box,
                 #чтоб перенести через прир-й(е) оператор(ы)
-                else:st.append(exp[i])
+                else:rpn_list.append(exp[i])
             skip=1
-    return st
+    return rpn_list
         
 
-def calc(exp):
-    if not valid(tokStr(exp)):
-        errors.erExp()
+def calc(expression):
+    if not valid(string_token(expression)):
+        errors.expression_error()
         return False
     #валидируем массив токенов перед тем как форматировать его в rpn
-    exp=rpn(tokStr(exp))
+    expression=reverse_polish_notation(string_token(expression))
     stack=[]
     #создаем стек для вычисления
-    for el in exp:
-        if not isOp(el):stack.append(el)
+    for element in expression:
+        if not is_operator(element):stack.append(element)
         #добавляем в стек операнды пока не дойдем до оператора
         else:
             #если дошли до оператора, берем последние два операнда и осущ арифм операцию
-            b=stack.pop()
-            a=stack.pop()
-            stack.append(arif(a,b,el))
+            num_b=stack.pop()
+            num_a=stack.pop()
+            stack.append(bin_operation(num_a,num_b,element))
             #возвращаем результат бин опер в стек
 
     return stack[0] #в стеке должен остаться только одно значение - результат
         
+
 
